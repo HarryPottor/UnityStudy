@@ -1,0 +1,50 @@
+1、对一个控件申请图片
+-- 对 uiTransform 申请 imageName 资源
+function M.GetImageSprite(imageName, uiTransform, callback, listener)
+    local key = tostring(uiTransform);
+    if uiTransform then
+        local com = uiTransform:GetComponent("UISetImageScript")
+        if not com  then
+            com = uiTransform.gameObject:AddComponent(UISetImageScript.GetClassType());
+            com:SetKey(key);
+        end
+    end
+
+    local data = {};
+    data.uiTransform = uiTransform;
+    data.listener = listener;
+    data.callback = callback;
+    data.imageName = imageName;
+    imageSpriteLoadList[key] = data;
+    ImageSetManager.GetSprite(imageName, key);
+end
+
+--@private 从c#调用
+function M.OnImageLoaded(sprite, key, name)
+    local used = false;
+    -- 注意：这里添加 判断“申请的资源名称”和“回调的资源名称”是否一致
+    -- 原因：申请的控件 uiTransform 可能会因为意外，瞬间申请两个资源。在第一个资源尚未加载完成时，
+    -- 申请第二个资源。如果第一个资源后回调，如果不加名字是否相等的判断，则会把第一个的资源替换到ui上。
+    if imageSpriteLoadList[key] and imageSpriteLoadList[key].imageName == name then
+        if imageSpriteLoadList[key].uiTransform then
+            local uiTransform = imageSpriteLoadList[key].uiTransform
+            local com = uiTransform:GetComponent("Image")
+            if com then
+                com.sprite = sprite;
+                used = true;
+            end
+            uiTransform.gameObject:SetActive(true);
+        end
+
+        if imageSpriteLoadList[key].callback then
+            imageSpriteLoadList[key].callback(imageSpriteLoadList[key].listener, imageSpriteLoadList[key].uiTransform, sprite, name);
+            used = true;
+        end
+    end
+
+    if not used then
+        --没有被使用,直接交回
+        if info then info( name .. " loaded but not used") end
+        ImageSetManager.ReturnImageSprite(sprite, key);
+    end
+end
