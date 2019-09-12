@@ -1,0 +1,260 @@
+1 位置移动
+transform.position = new Vector3(22, 3, 0);
+transform.Translate(Vector3.right*  -moveSpeed * Time.deltaTime);
+2 游戏对象
+GameObject ball;
+
+3 将屏幕的宽度转换成世界坐标
+Vector3 screenPos = new Vector3(Screen.width, 0, 0);
+Vector3 moveWidth = Camera.main.ScreenToWorldPoint(screenPos);
+
+4 获取自身宽度 
+ball.GetComponent<Renderer>().bounds.extents.x;
+
+5 生成新的对象
+newball = (GameObject)Instantiate(ball, spawnPos, Quaternion.identity);
+  销毁对象
+Destroy(newball, 5);
+
+6 固定帧更新
+FixedUpdate()
+
+7 鼠标到世界的位置2D
+rawPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+hatPosition = new Vector3(rawPosition.x, hatPosition.y, 0);
+
+8 刚体运动带动 物体运动
+GetComponent<Rigidbody2D>().MovePosition(hatPosition);
+
+9 碰撞发生
+    当一个碰撞做成了碰撞出发事件，这个碰撞将不能阻拦物品。
+void OnTriggerEnter2D(Collider2D col)
+
+10 生成特效，并跟随
+GameObject neweffect = (GameObject)Instantiate(
+            effect, transform.position, effect.transform.rotation);
+neweffect.transform.parent = transform;
+
+
+11 如果需要每秒移动一个距离，例如每秒移动5米 ,在Update中
+    要乘以 Time.deltaTime
+    不停的累加。
+    因为 5 = 5*dt1+ 5*dt2 ...5*dtn = 5* (dt1+dt2+...dtn);
+        当dt1+dt2+...dtn == 1 时即过了一秒，即运动了5米
+
+    如果是刚体 需要在FixedUpdate：
+    需要乘以 Time.fixedDeltaTime
+
+12 常见的组件名称
+    Transform -> transform
+    Renderer    ->  renderer
+    Light   ->  light(光源对象有效)
+    Collider    ->collider
+    Rigidbody    -> rigidbody
+    Camera      -> camera (摄像机对象有效)
+    Animation   -> animation
+
+13 获取组件
+    GetComponent<Transform>().Translate(1,0,0);
+    //获取脚本
+    HelloWorld helloworld = GetComponent<HelloWorld>();
+    helloworld.sayHello();  //调用脚本中的方法
+    !!!C#中 public 的变量和方法 才能在所有其他类中使用;
+            private 的变量和方法 只能在自身的类中使用；
+            protected 的变量和方法 只能在子类和同命名空间下的类中使用;
+            不写类型 的变量和方法 只能在子类和同命名空间下的类中使用
+
+14 查找世界中的物品:
+    //子物体与父物体 运动
+    transform.Find("SubCube").Rotate(0, 50 * Time.deltaTime, 0);
+    transform.parent.Rotate(0, 50 * Time.deltaTime, 0);
+    foreach(Transform trans in transform)
+    {
+        trans.Rotate(0, 50 * Time.deltaTime, 0);
+    }
+    
+    //全局获取对象
+    GameObject obj = GameObject.Find("Sphere");
+    obj.transform.Translate(0, Mathf.Sin(tm)/100, 0);
+    tm += Time.deltaTime;
+
+    GameObject obj2 = GameObject.FindWithTag("GlobalSphereTag");
+    obj2.transform.Translate(0, Mathf.Sin(tm) / 50, 0);
+
+     // 使用某些函数的参数  
+    void OnTriggerStay(Collider other)
+    {
+        if (other.attachedRigidbody)
+        {
+            other.attachedRigidbody.AddForce(Vector3.up * 100);
+        }
+    }
+
+    //通过 使用的组件获取 对象，
+    Renderer renderer = FindObjectOfType<Renderer>();
+    print(renderer.gameObject.name);
+    Renderer[] renders = FindObjectsOfType<Renderer>();
+    foreach(Renderer rend in renders)
+    {
+        print(rend.gameObject.name);
+    }
+
+
+15 向量
+        Vector3.zero;
+        Vector3.forward;//001
+        Vector3.right;//100
+        Vector3.up;//010
+        Vector3.one;//111
+16 全局对象
+    public static int test; 
+17 协同程序
+    StartCoroutine(DoThings1());
+    IEnumerator DoThings1()
+    {
+        yield return StartCoroutine(DoThings2());
+        Debug.Log("DoThings1");
+    }
+
+    IEnumerator DoThings2()
+    {
+        yield return new WaitForSeconds(2);
+        Debug.Log("DoThings2");
+    }
+
+18 欧拉旋转角
+    rotationz = this.transform.eulerAngles.z;
+    rotationx = this.transform.eulerAngles.x;
+    角度都是0到360度，正好一圈
+    当箭头冲自己，→为0/360，顺时针 ↓为90 ←为180，↑为270
+
+19 创建监视器
+    创建 RenderTexture, 在摄像机的 TargetTexture 设置RenderTexture；
+    在RawImage的Texture中设置 RenderTexture。
+
+20 输入INPUT
+    Touch 对象 t 的成员变量:
+        fingerID  手指的索引
+        position  手指的位置
+        deltaPosition 距离上次改变的距离增量
+        deltaTime 距离上次改变的时间增量
+        tapCount 点击次数
+        phase   触摸相位 TouchPhase.Moved
+
+    Input 
+        变量
+            touchCount  touch的数量
+            touches 返回当前所有触摸列表
+
+            mousePosition 鼠标的位置
+            anyKey 是否有按键按住
+            anyKeyDown 用户点击任何键或鼠标按钮，第一帧返回true
+            inputString 返回键盘输入的字符串
+            acceleration 加速度传感器的值
+
+        函数
+            GetAxis 返回表示虚拟轴的值(Mouse X/Y);
+            GetAxisRaw  返回没有经过平滑处理的虚拟轴的值
+
+            GetButton 若虚拟按钮被按下返回true
+            GetButtonDown 第一帧为true
+            GetButtonUp 第一帧为true
+
+            GetKey 按下指定按钮时为true
+            GetKeyDown 第一帧为true
+            GetKeyUp 第一帧为true
+
+            GetMouseButton 指定的鼠标按键按下时为true 0,1,2 左右中
+            GetMouseButtonDown 第一帧为true
+            GetMouseButtonUp 第一帧为true
+
+            GetTouch(n) 根据索引返回当前触控
+
+21 销毁对象
+    Object.Destroy 删除游戏对象，组件或资源
+    MonoBehavior.OnDestroy 脚本被销毁时调 这是个方法
+    NewWork.Destroy 销毁网络对象
+
+    !!! 脚本中 this的意思是本脚本，本脚本挂在的对象为gameObject 
+        Destroy(this) 删除本脚本
+        Destroy(this.gameObject) 删除本脚本挂在的对象
+
+22 脚本中 给button 添加事件
+    public Button bplay;
+    void Start () 
+    {
+        bplay.onClick.AddListener(OnPlayBtnClick);
+    }
+    void OnPlayBtnClick()
+    {
+        Debug.Log("play");
+        
+    }
+
+
+23 同一个图集 只会绘制一次；
+    不同的图集 如果不在同一逻辑层，只会绘制图集个数；
+                如果在同一逻辑层，要避免遮挡，同一图集之间的遮挡没问题；
+                                              不同图集之间的遮挡会导致图集失效
+
+
+24 关于Input和RigidBody的控制，和生成对象
+    private void Update()
+    {
+        if (Input.GetButton("Fire1") && Time.time >= nextFireTime)
+        {
+            nextFireTime = Time.time + fireRate;
+            Instantiate(bullet, bulletSpawn.position, bulletSpawn.rotation);
+        }
+    }
+
+    private void FixedUpdate()
+    {
+        float horizon = Input.GetAxis("Horizontal");
+        float vertical = Input.GetAxis("Vertical");
+        Vector3 movement = new Vector3(horizon, 0.0f, vertical);
+        GetComponent<Rigidbody>().velocity = movement * speed;
+        GetComponent<Rigidbody>().rotation = Quaternion.Euler(0.0f, 0.0f, -horizon*50.0f);
+        
+    }
+
+
+    -- 生命周期
+    void Start ()
+    {
+        Destroy (gameObject, lifetime);
+    }
+
+    -- 重复执行某个函数
+    InvokeRepeating("Fire", 2, 1);
+    2秒后执行，以后每次1秒一执行 
+
+    -- Collider 的Is Trigger 要勾上
+    void OnTriggerEnter (Collider other){}
+
+    -- 重新载入场景
+    SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+
+    -- 使用协程
+    void Start () {
+        StartCoroutine("Move");
+    }
+    
+    IEnumerator Move()
+    {
+        while (true)
+        {
+            height = 5;
+            yield return new WaitForSeconds(3);
+            height = -5;
+            yield return new WaitForSeconds(3);
+        }
+
+    }
+
+    --  修改当前值，向目标值靠近
+    float res = Mathf.MoveTowards(curValue, tarValue, maxDelta) 
+
+25 可以用 一个 Vector2 变量来表示一个 值的取值范围
+26 生命周期 的 实现 
+    Destroy (gameObject, lifetime);

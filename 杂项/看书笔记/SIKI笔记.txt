@@ -1,0 +1,68 @@
+打包
+1、生成AB的脚本一定要在 Asset/Editor 路径下，否则会报错 UnityEditor 不存在
+2、打包的 AB名字一样，但是 后缀不一样，则会报错
+
+
+加载
+1、如果材质 打成一个包，只要 AssetBundle.LoadFromFile("AssetBundles/res.unity3d");
+    执行了，所有依赖它的资源的材质将会自动获取材质
+
+2、StreamingAssets文件中的数据会 完全打包进 apk包中
+
+
+ulua
+
+1、Editor 编辑器代码
+    Lua 游戏lua代码
+    Plugins 平台相关
+    Scripts 游戏框架
+    Source C#在lua层的包装类,包装为 table
+    uLua C#与Lua交互(lua jit, luainterface, ...)
+
+2、反射
+    在lua里面，获取c#类，创建c#对象。
+    注意：这里不用调用 require “luanet”， 因为LuaState在lua上进行了封装。
+public class CreateGameObject01 : MonoBehaviour {
+    private string script = @"
+            luanet.load_assembly('UnityEngine')
+            GameObject = luanet.import_type('UnityEngine.GameObject')       // 区别在这里 
+        ParticleSystem = luanet.import_type('UnityEngine.ParticleSystem')   // 区别在这里         
+            local newGameObj = GameObject('NewObj')
+            newGameObj:AddComponent(luanet.ctype(ParticleSystem))
+        ";
+
+    //反射调用
+    void Start () {
+        LuaState lua = new LuaState();
+        lua.DoString(script);
+    }
+    
+    // Update is called once per frame
+    void Update () {
+    
+    }
+}
+
+3、非反射调用
+    LuaScriptMgr在LuaState上进行了封装，LuaState在 Lua上进行了封装。
+    LuaScriptMgr属于单例，属于框架的一部分。会加载一些lua文件，在C盘中的文件。用的是swap绑定的类。
+private string script = @"
+            luanet.load_assembly('UnityEngine')
+            GameObject = UnityEngine.GameObject                       // 区别在这里
+            ParticleSystem = UnityEngine.ParticleSystem               // 区别在这里
+            local newGameObj = GameObject('NewObj')
+            newGameObj:AddComponent(ParticleSystem.GetClassType())
+        ";
+
+    //非反射调用
+    void Start () {
+        LuaScriptMgr lua = new LuaScriptMgr();
+        lua.Start();
+        lua.DoString(script);
+    }
+
+    提示信息
+
+    有新的资源包，是否现在进行更新？
+    (资源包大小10M)
+    (更新后才可正常进入游戏)
