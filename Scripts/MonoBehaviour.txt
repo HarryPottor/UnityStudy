@@ -1,0 +1,129 @@
+MonoBehaviour
+class in UnityEngine/Inherits from:Behaviour
+Description
+MonoBehaviour 是一个基类，所有 Unity 脚本都派生自该类。
+
+使用 C# 时，必须显式从 MonoBehaviour 派生。 使用 UnityScript（一种 JavaScript）时，则不必从 MonoBehaviour 显式派生。
+
+注意：Unity Editor 中有一个用于禁用 MonoBehaviour 的复选框。 如果取消选中该复选框，则禁用其相关函数。如果脚本中不存在以下任一函数， Editor 将不显示该复选框：
+
+Start()
+Update()
+FixedUpdate()
+LateUpdate()
+OnGUI()
+OnDisable()
+OnEnable()
+
+另请参阅：手册中的停用 GameObject 页面。
+
+Variables
+runInEditMode   允许 MonoBehaviour 的特定实例在编辑模式下运行（仅可在 Editor 中使用）。
+useGUILayout    禁用该属性可跳过 GUI 布局阶段。
+Public Functions
+CancelInvoke    取消该 MonoBehaviour 上的所有 Invoke 调用。
+Invoke  在 time 秒后调用 methodName 方法。
+InvokeRepeating 在 time 秒后调用 methodName 方法，然后每 repeatRate 秒调用一次。
+IsInvoking  是否有任何待处理的 methodName 调用？
+StartCoroutine  启动一个协同程序。
+StopAllCoroutines   停止在该行为上运行的所有协同程序。
+StopCoroutine   停止在该行为上运行的第一个名为 methodName 的协同程序或存储在 routine 中的协同程序。
+Static Functions
+print   将消息记录到 Unity 控制台（与 Debug.Log 相同）。
+Messages
+Awake   Awake 在加载脚本实例时调用。
+FixedUpdate 如果启用了 MonoBehaviour，则每个固定帧率帧调用该函数。
+LateUpdate  如果启用了 Behaviour，则每帧调用 LateUpdate。
+OnAnimatorIK    用于设置动画 IK（反向运动学）的回调。
+OnAnimatorMove  用于处理动画移动以修改根运动的回调。
+OnApplicationFocus  当玩家获得或失去焦点时，发送给所有 GameObject。
+OnApplicationPause  当应用程序暂停时，发送给所有 GameObject。
+OnApplicationQuit   在应用程序退出前，发送给所有游戏对象。
+OnAudioFilterRead   如果实现了 OnAudioFilterRead，Unity 将在音频 DSP 链中插入一个自定义滤波器。
+OnBecameInvisible   OnBecameInvisible 在渲染器对任何摄像机都不可见时调用。
+OnBecameVisible OnBecameVisible 在渲染器变为对任意摄像机可见时调用。
+OnCollisionEnter    当该碰撞体/刚体已开始接触另一个刚体/碰撞体时，调用 OnCollisionEnter。
+OnCollisionEnter2D  当传入碰撞体与该对象的碰撞体接触时发送（仅限 2D 物理）。
+OnCollisionExit 当该碰撞体/刚体已停止接触另一个刚体/碰撞体时，调用 OnCollisionExit。
+OnCollisionExit2D   当另一个对象上的碰撞体停止接触该对象的碰撞体时发送（仅限 2D 物理）。
+OnCollisionStay 对应正在接触刚体/碰撞体的每一个碰撞体/刚体，每帧调用一次 :ref::OnCollisionStay。
+OnCollisionStay2D   在另一个对象上的碰撞体正在接触该对象的碰撞体时发送每个帧（仅限 2D 物理）。
+OnConnectedToServer 成功连接到服务器后在客户端上调用。
+OnControllerColliderHit 当该控制器在执行 Move 时撞到碰撞体时调用 OnControllerColliderHit。
+OnDestroy   销毁附加的行为将导致游戏或场景收到 OnDestroy。
+OnDisable   该函数在行为被禁用时调用。
+OnDisconnectedFromServer    当连接丢失或与服务器断开连接时，在客户端上调用。
+OnDrawGizmos    如果您想绘制能够选择并且始终绘制的辅助图标，则可以实现 OnDrawGizmos。
+OnDrawGizmosSelected    如果选择了对象，则实现 OnDrawGizmosSelected 来绘制辅助图标。
+OnEnable    该函数在对象变为启用和激活状态时调用。
+OnFailedToConnect   出于某种原因连接尝试失败时，在客户端上调用。
+OnFailedToConnectToMasterServer 在连接到 MasterServer 时发生问题的情况下，在客户端或服务器上调用。
+OnGUI   系统调用 OnGUI 来渲染和处理 GUI 事件。
+OnJointBreak    在附加到相同游戏对象的关节断开时调用。
+OnJointBreak2D  在附加到相同游戏对象的 Joint2D 断开时调用。
+OnMasterServerEvent 在从 MasterServer 报告事件时，在客户端或服务器上调用。
+OnMouseDown 当用户在 GUIElement 或 Collider 上按下鼠标按钮时，将调用 OnMouseDown。
+OnMouseDrag 当用户单击 GUIElement 或 Collider 并仍然按住鼠标时，将调用 OnMouseDrag。
+OnMouseEnter    当鼠标进入 GUIElement 或 Collider 时调用。
+OnMouseExit 当鼠标不再处于 GUIElement 或 Collider 上方时调用。
+OnMouseOver 当鼠标悬停在 GUIElement 或 Collider 上时，每帧调用一次。
+OnMouseUp   当用户松开鼠标按钮时，将调用 OnMouseUp。
+OnMouseUpAsButton   松开鼠标时，仅当鼠标在按下时所在的 GUIElement 或 Collider 上时，才调用 OnMouseUpAsButton。
+OnNetworkInstantiate    在已通过 Network.Instantiate 进行网络实例化的对象上调用。
+OnParticleCollision 当粒子击中碰撞体时，将调用 OnParticleCollision。
+OnParticleTrigger   当粒子系统中的任何粒子满足触发模块中的条件时，将调用 OnParticleTrigger。
+OnPlayerConnected   每当有新玩家成功连接，就在服务器上调用。
+OnPlayerDisconnected    每当有玩家与服务器断开连接，就在服务器上调用。
+OnPostRender    在摄像机完成场景渲染后，将调用 OnPostRender。
+OnPreCull   OnPreCull 在摄像机剔除场景前调用。
+OnPreRender OnPreRender 在摄像机开始渲染场景前调用。
+OnRenderImage   OnRenderImage 在图像的所有渲染操作全部完成后调用。
+OnRenderObject  OnRenderObject 在摄像机渲染场景后调用。
+OnSerializeNetworkView  用于在网络视图监视的脚本中自定义变量同步。
+OnServerInitialized 每当调用 Network.InitializeServer 并且完成时，对该服务器调用该函数。
+OnTransformChildrenChanged  当 GameObject 的变换的子项列表发生更改时，将调用该函数。
+OnTransformParentChanged    当 GameObject 的变换的父属性发生更改时，将调用该函数。
+OnTriggerEnter  当 Collider other 事件进入该触发器时调用 OnTriggerEnter。
+OnTriggerEnter2D    当另一个对象进入附加到该对象的触发碰撞体时发送（仅限 2D 物理）。
+OnTriggerExit   当 Collider other 已停止接触该触发器时调用 OnTriggerExit。
+OnTriggerExit2D 当另一个对象离开附加到该对象的触发碰撞体时发送（仅限 2D 物理）。
+OnTriggerStay   对于接触触发器的每一个 Collider /other/，每次物理更新调用一次 OnTriggerStay。
+OnTriggerStay2D 在另一个对象位于附加到该对象的触发碰撞体之内时发送每个帧（仅限 2D 物理）。
+OnValidate  加载脚本后或 Inspector 中的值发生更改时，将调用该函数（只能在 Editor 中调用）。
+OnWillRenderObject  如果对象可见并且不是 UI 元素，则为每个摄像机调用 OnWillRenderObject。
+Reset   重置为默认值。
+Start   在首次调用任何 Update 方法之前启用脚本时，在帧上调用 Start。
+Update  如果启用了 MonoBehaviour，则每帧调用 Update。
+Inherited members
+Variables
+enabled 启用的 Behaviour 可更新，禁用的 Behaviour 不可更新。
+isActiveAndEnabled  已调用启用的 Behaviour。
+gameObject  此组件附加到的游戏对象。始终将组件附加到游戏对象。
+tag 此游戏对象的标签。
+transform   附加到此 GameObject 的 Transform。
+hideFlags   该对象应该隐藏、随场景一起保存还是由用户修改？
+name    对象的名称。
+Public Functions
+BroadcastMessage    调用此游戏对象或其任何子项中的每个 MonoBehaviour 上名为 methodName 的方法。
+CompareTag  此游戏对象是否使用 tag 进行了标记？
+GetComponent    如果游戏对象附加了类型为 type 的组件，则将其返回，否则返回 null。
+GetComponentInChildren  使用深度首次搜索返回 GameObject 或其任何子项中类型为 type 的组件。
+GetComponentInParent    返回 GameObject 或其任何父项中类型为 type 的组件。
+GetComponents   返回 GameObject 中类型为 type 的所有组件。
+GetComponentsInChildren 返回 GameObject 或其任何子项中类型为 type 的所有组件。
+GetComponentsInParent   返回 GameObject 或其任何父项中类型为 type 的所有组件。
+SendMessage 调用此游戏对象中的每个 MonoBehaviour 上名为 methodName 的方法。
+SendMessageUpwards  调用此游戏对象中的每个 MonoBehaviour 上或此行为的每个父级上名为 methodName 的方法。
+GetInstanceID   返回对象的实例 ID。
+ToString    返回 GameObject 的名称。
+Static Functions
+Destroy 删除 GameObject、组件或资源。
+DestroyImmediate    立即销毁对象 /obj/。强烈建议您改用 Destroy。
+DontDestroyOnLoad   加载新场景时，不自动销毁对象 /target/。
+FindObjectOfType    返回第一个类型为 type 的已加载的激活对象。
+FindObjectsOfType   返回所有类型为 type 的已加载的激活对象的列表。
+Instantiate 克隆 original 对象并返回克隆对象。
+Operators
+bool    该对象是否存在？
+operator != 比较两个对象是否引用不同的对象。
+operator == 比较两个对象引用，判断它们是否引用同一个对象。

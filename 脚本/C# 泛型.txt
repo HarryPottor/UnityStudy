@@ -1,0 +1,587 @@
+　所谓泛型，即通过参数化类型来实现在同一份代码上操作多种数据类型。
+
+　　泛型编程是一种编程范式，它利用“参数化类型”将类型抽象化，从而实现更为灵活的复用。在定义泛型类时，在对客户端代码能够在实例化类时，可以用类型参数的类型种类施加限制。
+
+泛型方法
+在C# 2.0中，方法可以定义特定于其执行范围的泛型参数，如下所示：
+
+复制代码
+public class MyClass<T>
+{
+    //指定MyMethod方法用以执行类型为X的参数
+    public void MyMethod<X>(X x) 
+    {
+        //
+    }
+
+    //此方法也可不指定方法参数
+    public void MyMethod<X>() 
+    {
+        //
+    }
+}   
+复制代码
+即使包含类不适用泛型参数，你也可以定义方法特定的泛型参数，如下所示：
+
+复制代码
+public class MyClass
+{
+    //指定MyMethod方法用以执行类型为X的参数
+    public void MyMethod<X>(X x) 
+    {
+        //
+    }
+
+    //此方法也可不指定方法参数
+    public void MyMethod<X>() 
+    {
+        //
+    }
+}
+复制代码
+注意：属性和索引器不能指定自己的泛型参数，它们只能使用所属类中定义的泛型参数进行操作。
+
+在调用泛型方法的时候，你可以提供要在调用场所使用的类型，如下所示：
+
+//调用泛型方法
+MyClass myClass = new MyClass();
+myClass.MyMethod<int>(3);
+ 
+泛型推理:
+在调用泛型方法时，C#编译器足够聪明，基于传入的参数类型来推断出正确的类型，并且它允许完全省略类型规范，如下所示：
+//泛型推理机制调用泛型方法
+MyClass myClass = new MyClass();
+myClass.MyMethod(3);
+
+注意：泛型方法无法只根据返回值的类型推断出类型，代码如下：
+
+复制代码
+public GenericMethodDemo()
+{        
+    MyClass myClass = new MyClass();
+    /****************************************************
+    无法从用法中推理出方法“GenericMethodDemo.MyClass.MyMethod<T>()”的类型参数。
+    请尝试显式指定类型参数。
+    ***************************************************/
+    int number = myClass.MyMethod();
+}
+
+public class MyClass
+{
+    public T MyMethod<T>() 
+    {
+        //
+    }
+}
+复制代码
+泛型方法中泛型参数的约束，如下：
+
+复制代码
+public class MyClass
+{
+    
+    public void MyMethod<X>(X x) where X:IComparable<X>
+    {
+        //
+    }
+}
+复制代码
+泛型类
+无法为类级别的泛型参数提供方法级别的约束。类级别泛型参数的所有约束都必须在类作用范围中定义，代码如下所示
+
+复制代码
+public class MyClass<T>
+{
+    
+    public void MyMethod<X>(X x,T t) where X:IComparable<X> where T:IComparer<T>
+    {
+        //
+    }
+}
+复制代码
+而下面的代码是正确的:
+
+复制代码
+public class MyClass<T> where T:IComparable<T>
+{
+    
+    public void MyMethod<X>(X x,T t) where X:IComparable<X> 
+    {
+        //
+    }
+}
+复制代码
+泛型参数虚方法的重写:子类方法必须重新定义该方法特定的泛型参数，代码如下
+
+复制代码
+public class MyBaseClass
+{
+    public virtual void SomeMethod<T>(T t)
+    {
+        //
+    }
+}
+public class MyClass :MyBaseClass
+{
+    public override void SomeMethod<X>(X x)
+    {
+        
+    }
+}
+复制代码
+同时子类中的泛型方法不能重复基类泛型方法的约束，这一点和泛型类中的虚方法重写是有区别的，代码如下
+
+复制代码
+public class MyBaseClass
+{
+    public virtual void SomeMethod<T>(T t) where T:new()
+    {
+        //
+    }
+}
+public class MyClass :MyBaseClass
+{
+    //正确写法
+    public override void SomeMethod<X>(X x)
+    {
+        
+    }
+
+    ////错误 重写和显式接口实现方法的约束是从基方法继承的，因此不能直接指定这些约束
+    //public override void SomeMethod<X>(X x) where X:new()
+    //{
+
+    //}
+}
+复制代码
+ 
+
+子类方法调用虚拟方法的基类实现：它必须指定要代替泛型基础方法类型所使用的类型实参。你可以自己显式的指定它，也可以依靠类型推理(如果可能的话)代码如下：
+
+复制代码
+public class MyBaseClass
+{
+    public virtual void SomeMethod<T>(T t) where T:new()
+    {
+        //
+    }
+}
+public class MyClass :MyBaseClass
+{
+    //正确写法
+    public override void SomeMethod<X>(X x)
+    {
+        base.SomeMethod<X>(x);
+        base.SomeMethod(x);
+    }
+}
+复制代码
+ 
+
+泛型委托
+在某个类中定义的委托可以使用该类的泛型参数，代码如下
+
+复制代码
+public class MyClass<T>
+{
+    public delegate void GenericDelegate(T t);
+    public void SomeMethod(T t)
+    {
+ 
+    }
+}
+public GenericMethodDemo()
+{
+    MyClass<int> obj = new MyClass<int>();
+    MyClass<int>.GenericDelegate del;
+    del = new MyClass<int>.GenericDelegate(obj.SomeMethod);
+    del(3);
+}
+复制代码
+ 
+
+委托推理：C#2.0使你可以将方法引用的直接分配转变为委托变量。将上面的代码改造如下
+
+复制代码
+public class MyClass<T>
+{
+    public delegate void GenericDelegate(T t);
+    public void SomeMethod(T t)
+    {
+ 
+    }
+}
+public GenericMethodDemo()
+{
+    MyClass<int> obj = new MyClass<int>();
+    MyClass<int>.GenericDelegate del;
+
+    //委托推理
+  del = obj.SomeMethod;
+    del(3);
+ }  
+复制代码
+泛型委托的约束：
+
+委托级别的约束只在声明委托变量和实例化委托时使用，类似于在类型和方法的作用范围中实施的其他任何约束。
+
+泛型和反射
+
+在Net2.0当中，扩展了反射以支持泛型参数。类型Type现在可以表示带有特定类型的实参(或绑定类型)或未指定类型的泛型(或称未绑定类型)。像C#1.1中那样，您可以通过使用typeof运算符或通过调用每个类型支持的GetType()来获得任何类型的Type。代码如下:
+
+复制代码
+LinkedList<int> list = new LinkedList<int>();
+ Type type1 = typeof(LinkedList<int>);
+ Type type2 = list.GetType();
+ Response.Write(type1 == type2);
+ typeof和GetType()也可以对泛型参数进行操作，如下
+
+public class MyClass<T>
+{
+public void SomeMethod(T t)
+{
+    Type type = typeof(T);
+    HttpContext.Current.Response.Write(type==t.GetType());
+}
+}
+复制代码
+typeof还可以对未绑定的泛型进行操作，代码如下
+
+复制代码
+protected void Page_Load(object sender, EventArgs e)
+{
+    if (!IsPostBack)
+    {
+        Type unboundType = typeof(MyClass<>);
+        Response.Write(unboundType.ToString());
+    }
+}
+
+public class MyClass<T>
+{
+    public void SomeMethod(T t)
+    {
+        Type type = typeof(T);
+        HttpContext.Current.Response.Write(type==t.GetType());
+    }
+}
+复制代码
+ 
+
+请注意"<>"的用法。要对带有多个类型参数的未绑定泛型类进行操作，请在"<>"中使用","
+
+Type类中添加了新的方法和属性，用于提供有关该类型的泛型方面的反射信息，见MSDN。
+
+ 
+
+ 
+
+.net泛型约束  
+　　如果客户端代码尝试使用某个约束所不允许的类型来实例化类，则会产生编译时错误。这些限制称为约束。约束是使用 where 上下文关键字指定的。
+一、 约束
+　 下表列出了五种类型的约束：
+约束  说明
+T：struct
+
+类型参数必须是值类型。可以指定除 Nullable 以外的任何值类型。
+
+T：class
+
+类型参数必须是引用类型，包括任何类、接口、委托或数组类型。
+
+T：new()
+
+类型参数必须具有无参数的公共构造函数。当与其他约束一起使用时，new() 约束必须最后指定。
+
+T：<基类名>
+
+类型参数必须是指定的基类或派生自指定的基类。
+
+T：<接口名称>
+
+类型参数必须是指定的接口或实现指定的接口。可以指定多个接口约束。约束接口也可以是泛型的。
+
+T：U
+
+为 T 提供的类型参数必须是为 U 提供的参数或派生自为 U 提供的参数。这称为裸类型约束.
+
+ 
+
+ 
+派生约束
+1.常见的
+
+public class MyClass5<T> where T :IComparable { }
+
+2.约束放在类的实际派生之后
+
+public class B { }
+
+public class MyClass6<T> : B where T : IComparable { }
+
+3.可以继承一个基类和多个接口，且基类在接口前面
+
+public class B { }
+
+public class MyClass7<T> where T : B, IComparable, ICloneable { }
+
+构造函数约束
+1.常见的
+
+public class MyClass8<T> where T :  new() { }
+
+2.可以将构造函数约束和派生约束组合起来,前提是构造函数约束出现在约束列表的最后
+
+public class MyClass8<T> where T : IComparable, new() { }
+
+值约束
+1.常见的
+
+public class MyClass9<T> where T : struct { }
+
+2.与接口约束同时使用，在最前面(不能与基类约束,构造函数约束一起使用)
+
+public class MyClass11<T> where T : struct, IComparable { }
+
+引用约束
+常见的
+
+public class MyClass10<T> where T : class { }
+
+多个泛型参数
+ public class MyClass12<T, U> where T : IComparable  where U : class { }
+
+ 
+
+二、 继承和泛型
+public class B<T>{ }
+
+1. 在从泛型基类派生时,可以提供类型实参,而不是基类泛型参数
+
+    public class SubClass11 : B<int>
+    { }
+
+2.如果子类是泛型,而非具体的类型实参,则可以使用子类泛型参数作为泛型基类的指定类型
+
+    public class SubClass12<R> : B<R>
+    { }
+
+3.在子类重复基类的约束(在使用子类泛型参数时,必须在子类级别重复在基类级别规定的任何约束)
+    public class B<T> where T : ISomeInterface { }
+    public class SubClass2<T> : B<T> where T : ISomeInterface { }
+
+4.构造函数约束
+    public class B<T> where T : new()
+    {
+        public T SomeMethod()
+        {
+            return new T();
+        }
+    }
+    public class SubClass3<T> : B<T> where T : new(){ }
+
+三、泛型方法
+(C#2.0泛型机制支持在"方法声名上包含类型参数",这就是泛型方法)
+
+1.泛型方法既可以包含在泛型类型中,又可以包含在非泛型类型中
+
+public class MyClass5
+    {
+
+        public void MyMethod<T>(T t){ }
+    }
+
+2.泛型方法的声明与调用
+
+复制代码
+public class MyClass5
+{
+    public void MyMethod<T>(T t){ }
+}
+public class App5
+{
+    public void CallMethod()
+    {
+        MyClass5 myclass5 = new MyClass5();
+        myclass5.MyMethod<int>(3);
+    }
+}
+复制代码
+3.泛型方法的重载
+
+复制代码
+//第一组重载
+ void MyMethod1<T>(T t, int i){ }
+
+ void MyMethod1<U>(U u, int i){ }
+
+//第二组重载
+ void MyMethod2<T>(int i){ }
+ void MyMethod2(int i){ }
+
+//第三组重载，假设有两个泛型参数
+ void MyMethod3<T>(T t) where T : A { }
+void MyMethod3<T>(T t) where T : B { }
+
+//第四组重载
+
+public class MyClass8<T,U>
+{
+    public T MyMothed(T a, U b)
+    {
+        return a;
+    }
+    public T MyMothed(U a, T b)
+    {
+        return b;
+    }
+    public int MyMothed(int a, int b)
+    {
+        return a + b;
+    }
+}
+复制代码
+ 
+
+4.泛型方法的覆写
+
+(1)public class MyBaseClass1
+    {
+        public virtual void MyMothed<T>(T t) where T : new() { }
+    }
+    public class MySubClass1:MyBaseClass1
+    {
+        public override void MyMothed<T>(T t) //不能重复任何约束
+        { }
+    }
+
+(2)public class MyBaseClass2
+    {
+        public virtual void MyMothed<T>(T t)
+        { }
+    }
+    public class MySubClass2 : MyBaseClass2
+    {
+        public override void MyMothed<T>(T t) //重新定义泛型参数T
+        { }
+    }
+
+四、虚拟方法
+复制代码
+public class BaseClass4<T>
+{
+    public virtual T SomeMethod()
+    {
+        return default(T);
+    }
+}
+public class SubClass4 : BaseClass4<int> //使用实参继承的时候方法要使用实参的类型
+{
+    public override int SomeMethod()
+    {
+        return 0;
+    }
+}
+
+public class SubClass5<T> : BaseClass4<T> //使用泛型继承时,方法也是泛型
+{
+    public override T SomeMethod()
+    {
+        return default(T);
+    }
+}
+复制代码
+ 
+
+五、泛型参数隐式强制转换
+编译器只允许将泛型参数隐式强制转换到 Object 或约束指定的类型。
+
+复制代码
+class MyClass<T> where T : BaseClass, ISomeInterface
+{
+    void SomeMethod(T t)
+    {
+        ISomeInterface obj1 = t;
+        BaseClass obj2 = t;
+        object obj3 = t;
+    }
+}
+复制代码
+ 
+
+ 
+
+变通方法:使用临时的 Object 变量，将泛型参数强制转换到其他任何类型
+
+ 
+
+1
+2
+3
+4
+5
+6
+7
+8
+class MyClass2<T>
+{
+    void SomeMethod(T t)
+    {
+        object temp = t;
+        BaseClass obj = (BaseClass)temp;
+    }
+}
+ 
+
+六、 泛型参数显式强制转换
+编译器允许您将泛型参数显式强制转换到其它任何接口，但不能将其转换到类
+
+ 
+
+复制代码
+class MyClass1<T>
+{
+    void SomeMethod(T t)
+    {
+        ISomeInterface obj1 = (ISomeInterface)t;  
+        //BaseClass obj2 = (BaseClass)t;           //不能通过编译
+    }
+}
+复制代码
+ 
+
+ 
+
+七、 泛型参数强制转换到其他任何类型
+使用临时的 Object 变量，将泛型参数强制转换到其他任何类型
+
+复制代码
+class MyClass2<T>
+{
+    void SomeMethod(T t)
+    {
+        object temp = t;
+        BaseClass obj = (BaseClass)temp;
+    }
+}
+复制代码
+ 
+
+八、使用is和as运算符
+ 
+
+复制代码
+public class MyClass3<T>
+{
+    public void SomeMethod(T t)
+    {
+        if (t is int) { }
+        if (t is LinkedList<int>) { }
+        string str = t as string;
+        if (str != null) { }
+        LinkedList<int> list = t as LinkedList<int>;
+        if (list != null) { }
+    }
+}
+复制代码
+ 
