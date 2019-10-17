@@ -1,0 +1,6 @@
+1 将字符串转换成枚举
+    方法:(MyEnumType)Enum.Parse(typeof(MyEnumType), MyInputStr, true);
+    参数1,枚举类型；参数2，字符串；参数3，是否忽略大小写
+    例子：
+    string str = ReadLine();
+    WeekDay day = (WeekDay)Enum.Parse(typeof(WeekDay), str, true);

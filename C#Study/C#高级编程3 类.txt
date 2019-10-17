@@ -1,0 +1,48 @@
+1 结构体是值类型，类是引用类型
+
+2 类属性的自动实现与初始化
+    public int Age {get; set;} = 42;
+3 设置属性的访问修饰符，两者中至少有一个是 属性访问级别，否则报错
+    public  string Name {get; private set;};
+4 类方法中，如果只有一个语句，可以用以下方法显示
+    public bool IsSquare(Rectangle rect) => rect.Height == rect.Width;
+5 类方法中，参数命名
+    public void MoveAndResize(int x, int y, int width, int height);
+    r.MoveAndResize(x:1, y:2, width:3, height:4);
+6 类方法中，可选参数：
+    public void TestFunc(int n, int op1 = 1, int opt2 =2);
+    如果只想传opt2:
+    r.TestFunc(1, opt2:200);
+7 类方法中，个数可变参数:
+    Add(string name, params object[] param);
+8 ??操作符：
+    public static Singleton Instance
+    {
+        get { return s_instance ?? new Singleton(0); }
+    }
+9 构造函数中调用构造函数
+    public ClassA(int a, int b){}
+    public ClassA(int a): this(a, 4){}  // 调用本身构造
+    public ClassA(int a): base(a, 4， 8){}  // 调用基类构造
+10 静态构造方法，初始化静态字段, 静态构造方法不会添加 public
+    public enum Color
+    {
+        White, Red, Green, Blue, Black
+    }
+
+    public static class UserPreference
+    {
+        public static Color BackColor { get; }
+        static UserPreference()
+        {
+            DateTime now = DateTime.Now;
+            if (now.DayOfWeek == DayOfWeek.Friday)
+            {
+                BackColor = Color.Black;
+            }
+            else
+            {
+                BackColor = Color.White;
+            }
+        }
+    }
