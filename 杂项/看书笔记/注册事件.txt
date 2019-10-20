@@ -1,0 +1,45 @@
+1 为按钮添加点击事件
+
+    btn.onClick.AddListener(() => OnBtnClick(btn.name, btn.gameObject));
+    
+    private void OnBtnClick(string name, GameObject go)
+    {
+        Debug.Log(name + " Clicked!");
+    }
+
+    //btn 为 Button 组件
+    这里使用Lambda表达式 (参数1，参数2)=>func();
+    Button 中有 ButtonClickedEvent 类型的对象 onClick, 
+    ButtonClickedEvent 继承自 UnityEvent, 它其中包含(AddListener, Invoke, RemoveListener)
+    UnityEvent 又继承自 UnityEventBase(抽象类), 它其中包含 一堆方法
+
+    其中 AddListener 方法原型  public void AddListener(UnityAction call);
+        public delegate void UnityAction(); 代理方法
+
+
+
+2 位Toggle添加点击事件
+
+    toggle = GetComponent<Toggle>();
+    toggle.onValueChanged.AddListener(OnChange);
+
+    protected void OnChange(bool value)
+    {
+        CallMethond(value);
+        SwapSprite(value);
+    }
+
+    //Toggle 组件有 ToggleEvent 类型的 onValueChanged 对象
+    ToggleEvent 继承自 UnityEvent<bool>,
+    UnityEvent<bool> 是 类模板 UnityEvent<T0> 类, 内部有 
+        public void AddListener(UnityAction<T0> call);
+        public void Invoke(T0 arg0);
+        public void RemoveListener(UnityAction<T0> call);
+        protected override MethodInfo FindMethod_Impl(string name, object targetObj);
+    UnityEvent<T0> 继承自 UnityEventBase(抽象类) 
+
+    其中 AddListener(UnityAction<T0> call) 中的参数 类型为 
+        public delegate void UnityAction<T0>(T0 arg0);
+
+
+可见 注册的方法有两类:一类不带模板， 一类带模板。跟着方法的代理也有两种情况。
