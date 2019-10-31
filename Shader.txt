@@ -1,0 +1,35 @@
+
+--------------------------------------------------------------
+坐标系转换
+transform.localToWorldMatrix 局部转世界
+transform.worldToLocalMatrix
+MultiplyPoint, MultiplyPoint3*4, MultiplyVector 进行坐标变换
+shader中 左乘 unity_WorldToObject 来实现世界坐标转局部坐标
+shader中 左乘 unity_ObjectToWorld 
+
+UNITY_MATRIX_MV 基本变换矩阵*摄像机矩阵
+UNITY_MATRIX_T_MV (基本变换矩阵*摄像机矩阵) 转置矩阵
+UNITY_MATRIX_IT_MV (基本变换矩阵*摄像机矩阵) 转置逆矩阵
+UNITY_MATRIX_MVP 基本变换矩阵*摄像机矩阵*投影矩阵
+UNITY_MATRIX_V 摄像机矩阵
+UNITY_MATRIX_P 投影矩阵
+UNITY_MATRIX_VP 摄像机矩阵*投影矩阵
+UNITY_MATRIX_TEXTURE0 纹理变换矩阵
+
+uv = TRANSFORM_TEX(uv, tex) 将传入的uv转化为真正用的uv
+
+---------------------------------------------------------------
+float4 内置向量(x,y,z,w)
+float3 (x,y,z)
+float2 (x,y)
+
+fixed4 (r,g,b,a)
+fixed3 (r,g,b)
+
+_Time 自场景加载开始所经过的时间t, (t/20, t, t*2, t*3);
+_SinTime t的正弦值(t/8, t/4, t/2, t)
+_CosTime
+unity_DeltaTime: dt 是时间增量；smoothDt是平滑时间 
+    (dt, 1/dt, smoothDt, 1/smoothDt)
+
+---------------------------------------------------------------------
