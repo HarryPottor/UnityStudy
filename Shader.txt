@@ -33,3 +33,41 @@ unity_DeltaTime: dt 是时间增量；smoothDt是平滑时间
     (dt, 1/dt, smoothDt, 1/smoothDt)
 
 ---------------------------------------------------------------------
+绑定标记：
+POSITION    位置
+COLOR       颜色
+TANGENT     切线
+NORMAL      法线
+TEXCOORD0   uv坐标
+TEXCOORD1
+TEXCOORD2
+TEXCOORD3
+---------------------------------------------------------------------
+CGPROGRAM
+-- 类型
+float, half, double
+fixed 定点数
+int, bool
+sampler* 纹理 sampler, sampler1D, sampler2D, sampler3D, samplerCUBE, samplerRECT
+内置向量 float4(float, float, float, float) 不能超过4
+内置矩阵 float1x1, float2x3, float4x4, 不能超过4
+数组类型 float a[10]
+ENDCG
+
+----------------------------------------------------------------------
+abs(num)
+三角函数
+cross(a,b) 叉积
+dot(a,b) 点积
+determinant(M) 矩阵行列式
+floor(x) 向下取整
+lerp(a,b,f) a,b 线性插值
+log2(x)
+mul(m,n) 矩阵*矩阵 矩阵*向量 向量*矩阵
+power(x, y) x的y次方
+radians(x) 角度化弧度
+reflect(v,n) v关于法线n的反射向量
+round(x) 靠近取整
+tex2D(sample, uv) 二维纹理取颜色
+tex3Dproj(smaple, x) 投影三维纹理颜色
+texCUBE(smaple, x) 立方体贴图纹理查找 
