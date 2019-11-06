@@ -1,4 +1,18 @@
+属性类型
+Float 
+Int 
+Color(num1,num,num,num)
+Vector4(num1,num,num,num)
+Range(num1, num2)
+2D
+Rect
+Cube
+3D
 
+纹理属性 Options:
+    TexGen
+    ObjectLinear, EyeLinear, SphereMap,CubeReflect,CubeNormal
+    LightmapMod
 --------------------------------------------------------------
 坐标系转换
 transform.localToWorldMatrix 局部转世界
