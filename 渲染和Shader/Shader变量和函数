@@ -1,0 +1,151 @@
+******************************************************************************** 变量：
+_WorldSpaceCameraPos 相机的位置
+_WorldSpaceLightPos0 逐像素光源的位置
+
+_LightColor0  逐像素光源的颜色
+_LightMatrix0 从世界空间到光源空间的变换矩阵
+
+_LightMatrix0 世界坐标 转换 到光源空间
+
+
+unity_WorldToLight      //矩阵  世界坐标 到 光源空间
+unity_WorldToObject     //矩阵  世界坐标 到 局部空间
+unity_ObjectToWorld     //矩阵  局部坐标 到 世界空间
+
+UNITY_LIGHTMODEL_AMBIENT //环境光
+
+
+******************************************************************************** 函数:
+float4 UnityObjectToClipPos(in float3 pos)      //位置 从 局部空间 到 剪切空间 
+float4 UnityWorldToClipPos( in float3 pos )     //位置 从 世界空间 到 剪切空间
+
+float3 UnityObjectToViewPos( in float3 pos )
+float3 UnityWorldToViewPos( in float3 pos )
+float4 UnityViewToClipPos( in float3 pos )
+
+float3 UnityObjectToWorldDir( in float3 dir )       // 方向 从局部空间 到世界空间
+float3 UnityWorldToObjectDir( in float3 dir )       // 方向 从世界空间 到局部空间
+float3 UnityObjectToWorldNormal( in float3 norm )   // 法线 从局部空间 到世界空间
+
+float3 UnityWorldSpaceLightDir( in float3 worldPos )    // 光照方向(世界空间)  通过 世界坐标 
+float3 WorldSpaceLightDir( in float4 localPos )         // 光照方向(世界空间)  通过 局部坐标
+float3 ObjSpaceLightDir( in float4 v )                  // 光照方向(局部空间)  通过 局部坐标
+
+float3 UnityWorldSpaceViewDir( in float3 worldPos )     // 视觉方向(世界空间)   通过 世界坐标
+float3 WorldSpaceViewDir( in float4 localPos )          // 视觉方向(世界空间)   通过 局部坐标
+float3 ObjSpaceViewDir( in float4 v )                   // 视觉方向(局部空间)   通过 局部坐标
+
+******************************************************************************** 获取光照衰减
+#ifdef UNITY_DIRECTIONAL_LIGHT
+    fixed atten = 1.0;
+#else
+    #if defined(POINT)
+        float3 lightCoord = mul(unity_WorldToLight, float4(i.worldPos, 1)).xyz;
+        fixed atten = tex2D(_LightTexture0, dot(lightCoord, lightCoord).rr).UNITY_ATTEN_CHANNEL;
+    #elif defined(SPOT)
+        float4 lightCoord = mul(unity_WorldToLight, float4(i.worldPos, 1));
+        fixed atten = (lightCoord.z > 0) * tex2D(_LightTexture0, lightCoord.xy / lightCoord.w + 0.5).w * tex2D(_LightTextureB0, dot(lightCoord, lightCoord).rr).UNITY_ATTEN_CHANNEL;
+    #else
+        fixed atten = 1.0;
+    #endif // defined(POINT)
+#endif // UNITY_DIRECTIONAL_LIGHT
+
+******************************************************************************** 接收阴影三剑客
+1 在v2f中 添加 SHADOW_COORDS(x) 没有分号
+2 在顶点着色器 添加 TRANSFER_SHADOW(o);
+3 在片元着色器 添加 fixed shadow = SHADOW_ATTENUATION(i);
+
+整合了 光衰 和 阴影3的综合体
+UNITY_LIGHT_ATTENUATION(atten, i, i.worldPos)
+atten 就是结果
+
+******************************************************************************** 前向渲染
+1 base
+
+Pass{
+    Tags {"LightMode"="ForwardBase"}
+    CGPROGRAM
+        #pragma multi_compile_fwdbase
+    ENDCG
+}
+
+2 add
+
+Pass{
+    Tags {"LightMode"="ForwardAdd"}
+    Blend one one
+    CGPROGRAM
+        #pragma multi_compile_fwdadd
+        #pragma multi_compile_fwdadd_shadow
+    ENDCG
+
+}
+
+******************************************************************************** 透明度测试的 阴影
+SubShader
+{
+    Tags {"Queue"="AlphaTest" "IgnoreProjector"="True" "RenderType"="TransparentCutout"}
+    Pass
+    {
+        Tags {"LightMode"="ForwardBase"}
+        Cull Off
+    }
+}
+
+// 这个shader中加入了透明度测试，但要包含 _Cutoff 变量
+FallBack "Transparent/Cutout/VertexLit" 
+// 这个shader中 不包含透明度测试
+FallBack "VertexLit"/"Diffuse"/"Specular"
+
+******************************************************************************** 透明度混合的 阴影
+SubShader
+{
+    Tags {"Queue" = "Transparent" "IgnoreProjector" = "True" "RenderType" = "Transparent"}
+    
+    // 开启自身的深度检测，屏蔽颜色
+    Pass{
+        ZWrite On
+        ColorMask 0
+    }
+
+    // 如果想要双面渲染 先渲染背面，在渲染正面
+    Pass{
+        Tags{ "LightMode" = "ForwardBase" }
+        Cull Front
+        ...
+    }
+    Pass{
+        Tags {"LightMode" = "ForwardBase"}
+        Cull Back
+        ...
+    }
+
+
+    Pass{
+        Tags {"LightMode" = "ForwardBase"}
+        Cull Back
+        Blend SrcAlpha OneMinusSrcAlpha
+
+
+        fixed4 frag(v2f i) : SV_Target
+        {
+            float3 worldLightDir = normalize(UnityWorldSpaceLightDir(i.worldPos));
+            float3 worldViewDir = normalize(UnityWorldSpaceViewDir(i.worldPos));
+            float3 worldNormal = normalize(i.worldNormal);
+
+            fixed4 texColor = tex2D(_MainTex, i.uv);
+            fixed3 albedo = texColor.rgb * _Color.rgb;
+
+            fixed3 ambient = UNITY_LIGHTMODEL_AMBIENT.xyz * albedo;
+
+            fixed3 diffuse = _LightColor0.rgb * albedo * max(0, dot(worldLightDir, worldNormal));
+
+            UNITY_LIGHT_ATTENUATION(atten, i, i.worldPos);
+
+            return fixed4(ambient + diffuse * atten, texColor.a * _AlphaScale); // 注意这里透明度的使用
+        }
+    }
+}
+
+FallBack "Transparent/VertexLit" // 是不带阴影的
+
